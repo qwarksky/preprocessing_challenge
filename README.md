@@ -2,7 +2,7 @@
 
 The Goal of this project is to try different language and library to preprocess a dataset in a pipeline. 
 
-* duckdb_sql.sql : preprocessing only un SQL
+* duckdb_sql.sql : preprocessing only in SQL
 
 
 # Help links
