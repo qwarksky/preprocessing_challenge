@@ -1,3 +1,15 @@
+SUMMARIZE (FROM read_parquet('datasets/taxis_str.parquet')
+    SELECT  
+    	date_trunc('second',strptime(pickup,'%Y-%m-%d %H:%M:%S.%n')) AS pickup,
+    	date_trunc('second',strptime(dropoff,'%Y-%m-%d %H:%M:%S.%n')) AS dropoff,
+    	CAST(passengers AS INTEGER) AS passengers,
+        CAST(distance AS DOUBLE) AS distance,
+        CAST(fare AS DOUBLE) AS fare,
+        CAST(tip AS DOUBLE) AS tip,
+        CAST(tolls AS DOUBLE) AS tolls,
+        CAST(total AS DOUBLE) AS total,
+    	color,payment,COLUMNS('.*_zone|.*_borough'));
+
 -- CASTING dates in Secondes
 CREATE OR REPLACE MACRO cast_to_datetime(col_date) AS date_trunc('second',strptime(col_date,'%Y-%m-%d %H:%M:%S.%n')); 
 
