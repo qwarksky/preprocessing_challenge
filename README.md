@@ -19,5 +19,8 @@ The Goal of this project is to try different language and library to preprocess 
 > https://docs.pola.rs/api/python/stable/reference/dataframe/index.html <br>
 > Matt Harrison books : https://store.metasnake.com/effective-polars
 
+## Marimo notebooks
+> https://docs.marimo.io/guides/working_with_data/sql/#2-using-code
+
 ## Courses
 * MachineLearnia : https://www.machinelearnia.com/
