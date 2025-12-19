@@ -79,7 +79,7 @@ def _(pl, wraps):
         """
         @wraps(func)
         def wrapper(*args,**kwargs):
-        
+
             ret = func(*args,**kwargs)
             print(func.__name__,ret.shape,dict(zip(ret.columns,ret.dtypes)))
             return ret
@@ -102,6 +102,33 @@ def _(pl, wraps):
         )
 
     @logshow
+    def charsinfo(_df:pl.DataFrame)->pl.DataFrame:
+        """
+            More details about feteatures dtypes string before casting function.
+            Parameters : _df = DataFrame polars
+            Returns : DataFrame polars with correct type 
+        """
+        return (pl.DataFrame({
+                'DTYPES':_df.dtypes,
+                'FEATURES':_df.columns,
+                'COUNT':_df.select(pl.all().count()).transpose(),
+                'NUNIQUES':_df.select(pl.all().n_unique()).transpose(),
+                'NULLS':_df.select(pl.all().null_count()).transpose(),
+                'TOP':_df.max().transpose(),
+                'BOTTOM':_df.min().transpose(),
+                'WORDS':_df.select(pl.all().cast(pl.String).str.split(' ').list.len().sum()).transpose(),
+                'WORDS_min':_df.select(pl.all().cast(pl.String).str.split(' ').list.len().min()).transpose(),
+                'WORDS_mean':_df.select(pl.all().cast(pl.String).str.split(' ').list.len().mean()).transpose(),
+                'WORDS_max':_df.select(pl.all().cast(pl.String).str.split(' ').list.len().max()).transpose(),
+                'WORDS_median':_df.select(pl.all().cast(pl.String).str.split(' ').list.len().median()).transpose(),
+                'LEN_max':_df.select(pl.all().cast(pl.String).str.len_chars().max()).transpose(),
+                'LEN_min':_df.select(pl.all().cast(pl.String).str.len_chars().min()).transpose(),
+                'LEN_mean':_df.select(pl.all().cast(pl.String).str.len_chars().mean()).transpose(),
+                'LEN_median':_df.select(pl.all().cast(pl.String).str.len_chars().median()).transpose(),
+            }).sort(by='NUNIQUES',descending=False)
+        )
+
+    @logshow
     def select_by_nunique(_df:pl.DataFrame,_condition:str,_threshold:int)->pl.DataFrame:
         """
             Selection columns names diffrent condition threshold
@@ -119,7 +146,7 @@ def _(pl, wraps):
                 return(_df.select(_df.select(pl.all().n_unique()).unpivot(index=None,on=_df.columns).filter(pl.col('value') >= _threshold).to_series(0).to_list()))
             case '=':
                 return(_df.select(_df.select(pl.all().n_unique()).unpivot(index=None,on=_df.columns).filter(pl.col('value') == _threshold).to_series(0).to_list()))
-    
+
     @logshow    
     def exclude_by_dtypes_cols(_df:pl.DataFrame,_dtypes:list[pl.DataType])->pl.DataFrame:
         """
@@ -189,7 +216,7 @@ def _(pl, wraps):
             Parameters : _df = polars DataFrame, _col = feature name frome a mesure
             Returns : DataFrame polars with new _standard column
         """
-    
+
         return(_df
                   .with_columns(
                       pl.col(_col)
@@ -281,8 +308,9 @@ def _(
         .pipe(value_count_encoder,'pickup_borough')
         .pipe(standard_scaler,'distance')
         .pipe(standard_scaler,'fare')
-        .pipe(exclude_by_dtypes_cols,[pl.Datetime,pl.String]) 
-        #.describe()
+        .pipe(exclude_by_dtypes_cols,[pl.Datetime,pl.String])
+        #.pipe(charsinfo)
+        .describe()
      )
     return
 
@@ -318,7 +346,6 @@ def _(
                   orient='row')
         .describe()
     )
-
     return
 
 
@@ -347,7 +374,6 @@ def _(
                   orient='row')
         .describe()
     )
-
     return
 
 
